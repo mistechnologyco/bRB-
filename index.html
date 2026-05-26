@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Nunito:wght@400;600;700;800&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(135deg, #ff9ecd 0%, #ffb3d9 30%, #ffd6ec 60%, #ffe8f4 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .stars {
+    position: fixed; top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;
+  }
+  .star {
+    position: absolute;
+    width: 6px; height: 6px;
+    background: #fff;
+    border-radius: 50%;
+    animation: twinkle 3s infinite alternate;
+    opacity: 0.6;
+  }
+
+  @keyframes twinkle {
+    0%{opacity:0.2;transform:scale(0.8);}
+    100%{opacity:0.9;transform:scale(1.3);}
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 20px 16px;
+  }
+
+  .title-bar {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .game-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 38px;
+    font-weight: 900;
+    color: #c2185b;
+    text-shadow: 3px 3px 0 #f8bbd0, 5px 5px 0 rgba(194,24,91,0.2);
+    letter-spacing: 2px;
+  }
+
+  .game-subtitle {
+    font-size: 14px;
+    color: #ad1457;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .phase-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .tab-btn {
+    padding: 10px 24px;
+    border-radius: 50px;
+    border: 2.5px solid #e91e63;
+    background: rgba(255,255,255,0.7);
+    color: #ad1457;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.25s;
+    backdrop-filter: blur(4px);
+  }
+
+  .tab-btn.active {
+    background: #e91e63;
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(233,30,99,0.4);
+    transform: translateY(-2px);
+  }
+
+  .tab-btn:hover:not(.active) {
+    background: rgba(255,255,255,0.95);
+    transform: translateY(-1px);
+  }
+
+  .tab-btn.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: #ccc;
+    color: #aaa;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ===== DRESS UP SCREEN ===== */
+  .dressup-layout {
+    display: grid;
+    grid-template-columns: 180px 1fr 220px;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .panel {
+    background: rgba(255,255,255,0.85);
+    border-radius: 24px;
+    padding: 16px;
+    backdrop-filter: blur(8px);
+    border: 2px solid rgba(255,255,255,0.9);
+    box-shadow: 0 8px 32px rgba(233,30,99,0.1);
+  }
+
+  .panel-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: #e91e63;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 14px;
+    text-align: center;
+  }
+
+  /* Barbie Character */
+  .barbie-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+
+  .barbie-name-input {
+    width: 100%;
+    border: 2px solid #f48fb1;
+    border-radius: 12px;
+    padding: 8px 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #880e4f;
+    background: rgba(255,255,255,0.9);
+    text-align: center;
+    margin-bottom: 12px;
+    outline: none;
+  }
+
+  .barbie-name-input:focus { border-color: #e91e63; }
+
+  .barbie-figure {
+    position: relative;
+    width: 160px;
+    height: 340px;
+    margin: 0 auto;
+  }
+
+  /* SVG Barbie */
+  .barbie-svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .outfit-layer {
+    transition: all 0.3s ease;
+  }
+
+  /* Category tabs */
+  .cat-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .cat-tab {
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1.5px solid #f48fb1;
+    background: rgba(255,255,255,0.8);
+    font-size: 11px;
+    font-weight: 700;
+    color: #ad1457;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .cat-tab.active {
+    background: #e91e63;
+    color: white;
+    border-color: #e91e63;
+  }
+
+  .items-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+
+  .item-btn {
+    aspect-ratio: 1;
+    border-radius: 14px;
+    border: 2px solid #fce4ec;
+    background: rgba(255,255,255,0.9);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .item-btn:hover { transform: scale(1.1); border-color: #e91e63; box-shadow: 0 4px 12px rgba(233,30,99,0.3); }
+  .item-btn.selected { border-color: #e91e63; background: #fce4ec; box-shadow: 0 0 0 3px rgba(233,30,99,0.2); }
+  .item-btn .item-label { position: absolute; bottom: 2px; left: 0; right: 0; font-size: 8px; text-align: center; color: #ad1457; font-weight: 700; }
+
+  /* Score & Stats */
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #fce4ec;
+  }
+
+  .stat-label { font-size: 12px; color: #ad1457; font-weight: 700; }
+  .stat-val { font-size: 16px; font-weight: 800; color: #c2185b; }
+
+  .style-meters { margin-top: 14px; }
+
+  .meter-row { margin-bottom: 10px; }
+  .meter-label { font-size: 11px; color: #880e4f; font-weight: 700; margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .meter-bar { height: 8px; background: #fce4ec; border-radius: 10px; overflow: hidden; }
+  .meter-fill { height: 100%; border-radius: 10px; transition: width 0.5s ease; }
+  .meter-fill.glamour { background: linear-gradient(90deg, #e91e63, #f06292); }
+  .meter-fill.elegance { background: linear-gradient(90deg, #9c27b0, #ce93d8); }
+  .meter-fill.trend { background: linear-gradient(90deg, #ff5722, #ffb74d); }
+  .meter-fill.confidence { background: linear-gradient(90deg, #2196f3, #81d4fa); }
+
+  .btn-primary {
+    width: 100%;
+    padding: 14px;
+    border-radius: 50px;
+    border: none;
+    background: linear-gradient(135deg, #e91e63, #c2185b);
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: all 0.25s;
+    box-shadow: 0 4px 20px rgba(233,30,99,0.4);
+    letter-spacing: 1px;
+  }
+
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(233,30,99,0.5); }
+  .btn-primary:active { transform: translateY(0); }
+
+  /* ===== RUNWAY SCREEN ===== */
+  .runway-stage {
+    background: rgba(255,255,255,0.9);
+    border-radius: 24px;
+    padding: 24px;
+    text-align: center;
+    backdrop-filter: blur(8px);
+    border: 2px solid rgba(255,255,255,0.95);
+    box-shadow: 0 8px 40px rgba(233,30,99,0.15);
+  }
+
+  .runway-track {
+    position: relative;
+    height: 320px;
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 20px 0;
+  }
+
+  .runway-lights {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+  }
+
+  .runway-line {
+    position: absolute;
+    bottom: 0; top: 0;
+    width: 3px;
+    background: linear-gradient(180deg, rgba(255,215,0,0) 0%, rgba(255,215,0,0.8) 50%, rgba(255,215,0,0) 100%);
+    animation: runway-flash 1.5s infinite;
+  }
+
+  @keyframes runway-flash {
+    0%,100%{opacity:0.3;} 50%{opacity:1;}
+  }
+
+  .spotlight {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    top: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: spotlight-sway 3s ease-in-out infinite;
+  }
+
+  @keyframes spotlight-sway {
+    0%,100%{left:35%;} 50%{left:55%;}
+  }
+
+  .runway-model {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: none;
+    font-size: 80px;
+    filter: drop-shadow(0 0 20px rgba(255,192,203,0.8));
+  }
+
+  .runway-model.walking {
+    animation: catwalk 3s ease-in-out forwards;
+  }
+
+  @keyframes catwalk {
+    0%{bottom:-100px;opacity:0;}
+    15%{opacity:1;}
+    50%{bottom:120px;}
+    75%{bottom:120px;}
+    90%{bottom:-80px;opacity:1;}
+    100%{bottom:-100px;opacity:0;}
+  }
+
+  .audience {
+    position: absolute;
+    top: 10px;
+    left: 0; right: 0;
+    display: flex;
+    justify-content: space-around;
+    font-size: 24px;
+  }
+
+  .audience-member {
+    animation: cheer 0.8s ease-in-out infinite alternate;
+  }
+
+  @keyframes cheer {
+    0%{transform:translateY(0);} 100%{transform:translateY(-8px);}
+  }
+
+  .score-reveal {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin: 16px 0;
+    flex-wrap: wrap;
+  }
+
+  .judge-score {
+    background: linear-gradient(135deg, #e91e63, #c2185b);
+    color: white;
+    border-radius: 16px;
+    padding: 12px 20px;
+    text-align: center;
+    min-width: 100px;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  .judge-score.show { opacity: 1; transform: scale(1); }
+
+  .judge-name { font-size: 11px; font-weight: 700; opacity: 0.85; }
+  .judge-val { font-size: 32px; font-weight: 900; line-height: 1; }
+  .judge-comment { font-size: 10px; opacity: 0.8; margin-top: 2px; }
+
+  /* Leaderboard */
+  .leaderboard {
+    background: rgba(255,255,255,0.9);
+    border-radius: 20px;
+    padding: 20px;
+    margin-top: 16px;
+    backdrop-filter: blur(8px);
+    border: 2px solid rgba(255,255,255,0.95);
+  }
+
+  .lb-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: #c2185b;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .lb-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    margin-bottom: 8px;
+    background: #fff5f8;
+    border: 1.5px solid #fce4ec;
+    transition: all 0.3s;
+  }
+
+  .lb-row.gold { background: linear-gradient(135deg, #fff8e1, #fff3cd); border-color: #ffd54f; }
+  .lb-row.silver { background: linear-gradient(135deg, #f5f5f5, #eeeeee); border-color: #bdbdbd; }
+  .lb-row.bronze { background: linear-gradient(135deg, #fbe9e7, #ffccbc); border-color: #ff8a65; }
+
+  .lb-rank { font-size: 20px; min-width: 32px; text-align: center; }
+  .lb-emoji { font-size: 32px; }
+  .lb-info { flex: 1; }
+  .lb-pname { font-size: 14px; font-weight: 800; color: #880e4f; }
+  .lb-theme { font-size: 11px; color: #ad1457; }
+  .lb-score { font-size: 24px; font-weight: 900; color: #e91e63; }
+
+  /* Animations */
+  @keyframes bounce-in {
+    0%{transform:scale(0.3);opacity:0;}
+    60%{transform:scale(1.1);}
+    80%{transform:scale(0.95);}
+    100%{transform:scale(1);opacity:1;}
+  }
+
+  .bounce-in { animation: bounce-in 0.6s forwards; }
+
+  /* Progress stars */
+  .progress-stars {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 10px 0;
+  }
+  .prog-star { font-size: 24px; opacity: 0.3; transition: all 0.4s; }
+  .prog-star.lit { opacity: 1; animation: star-pop 0.4s; }
+  @keyframes star-pop { 0%{transform:scale(0);} 60%{transform:scale(1.4);} 100%{transform:scale(1);} }
+
+  .confetti-piece {
+    position: fixed;
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    animation: confetti-fall 3s ease-in forwards;
+    z-index: 1000;
+    pointer-events: none;
+  }
+  @keyframes confetti-fall {
+    0%{transform:translateY(-100px) rotate(0deg);opacity:1;}
+    100%{transform:translateY(100vh) rotate(720deg);opacity:0;}
+  }
+
+  .theme-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 800;
+    margin: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+  }
+
+  .theme-badge:hover { transform: scale(1.05); }
+  .theme-badge.selected-theme { border-color: #e91e63; box-shadow: 0 0 0 3px rgba(233,30,99,0.2); }
+
+  .flash-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%) scale(0);
+    background: linear-gradient(135deg, #e91e63, #c2185b);
+    color: white;
+    padding: 20px 40px;
+    border-radius: 24px;
+    font-size: 24px;
+    font-weight: 900;
+    font-family: 'Playfair Display', serif;
+    z-index: 9999;
+    box-shadow: 0 20px 60px rgba(233,30,99,0.5);
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    pointer-events: none;
+    text-align: center;
+  }
+  .flash-message.show { transform: translate(-50%,-50%) scale(1); }
+
+  .color-swatches { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 12px; }
+  .swatch { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: all 0.2s; }
+  .swatch.active { border-color: #e91e63; transform: scale(1.2); box-shadow: 0 0 0 2px white; }
+
+  .accessory-slot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #fff0f5;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    border: 1.5px solid #fce4ec;
+  }
+  .slot-label { font-size: 12px; color: #ad1457; font-weight: 700; flex: 1; }
+  .slot-val { font-size: 20px; }
+
+  @media (max-width: 700px) {
+    .dressup-layout { grid-template-columns: 1fr; }
+    .game-title { font-size: 26px; }
+  }
+</style>
+
+<div class="stars" id="stars"></div>
+<div class="flash-message" id="flashMsg"></div>
+
+<div class="container">
+  <div class="title-bar">
+    <div class="game-title">✨ Barbie Fashion World ✨</div>
+    <div class="game-subtitle">Giydirmece & Defile Şampiyonası</div>
+  </div>
+
+  <div class="phase-tabs">
+    <button class="tab-btn active" onclick="switchTab('dressup')">👗 Giydirmece</button>
+    <button class="tab-btn locked" id="tab-runway" onclick="switchTab('runway')">💃 Defile</button>
+    <button class="tab-btn locked" id="tab-results" onclick="switchTab('results')">🏆 Sonuçlar</button>
+  </div>
+
+  <!-- DRESS UP SCREEN -->
+  <div class="screen active" id="screen-dressup">
+    <div class="dressup-layout">
+
+      <!-- Left: Barbie Figure -->
+      <div class="panel barbie-stage">
+        <div class="panel-title">Barbiem</div>
+        <input class="barbie-name-input" type="text" id="barbieName" placeholder="İsim yaz..." value="Barbie" maxlength="12">
+
+        <div class="barbie-figure" id="barbieFig">
+          <svg class="barbie-svg" viewBox="0 0 160 340" xmlns="http://www.w3.org/2000/svg">
+            <!-- Shadow -->
+            <ellipse cx="80" cy="332" rx="35" ry="6" fill="rgba(0,0,0,0.15)"/>
+            <!-- Legs -->
+            <rect id="leg-l" x="52" y="240" width="20" height="90" rx="10" fill="#fdbcb4"/>
+            <rect id="leg-r" x="88" y="240" width="20" height="90" rx="10" fill="#fdbcb4"/>
+            <!-- Shoes -->
+            <ellipse id="shoe-l" cx="62" cy="328" rx="16" ry="7" fill="#e91e63"/>
+            <ellipse id="shoe-r" cx="98" cy="328" rx="16" ry="7" fill="#e91e63"/>
+            <!-- Dress/Outfit bottom -->
+            <path id="skirt" d="M45,180 Q50,260 55,280 Q80,290 105,280 Q110,260 115,180 Z" fill="#e91e63"/>
+            <!-- Outfit top -->
+            <rect id="top" x="48" y="130" width="64" height="60" rx="8" fill="#f06292"/>
+            <!-- Neck -->
+            <rect x="72" y="110" width="16" height="28" rx="6" fill="#fdbcb4"/>
+            <!-- Arms -->
+            <rect id="arm-l" x="24" y="130" width="26" height="14" rx="7" fill="#fdbcb4"/>
+            <rect id="arm-r" x="110" y="130" width="26" height="14" rx="7" fill="#fdbcb4"/>
+            <!-- Hands -->
+            <circle id="hand-l" cx="30" cy="152" r="9" fill="#fdbcb4"/>
+            <circle id="hand-r" cx="130" cy="152" r="9" fill="#fdbcb4"/>
+            <!-- Head -->
+            <ellipse cx="80" cy="84" rx="40" ry="44" fill="#fdbcb4"/>
+            <!-- Hair back -->
+            <ellipse id="hair-back" cx="80" cy="80" rx="42" ry="48" fill="#f9d56e"/>
+            <!-- Face -->
+            <ellipse cx="80" cy="88" rx="36" ry="38" fill="#fdbcb4"/>
+            <!-- Eyes -->
+            <ellipse cx="65" cy="82" rx="8" ry="9" fill="white"/>
+            <ellipse cx="95" cy="82" rx="8" ry="9" fill="white"/>
+            <circle id="eye-l" cx="65" cy="83" r="5" fill="#1565c0"/>
+            <circle id="eye-r" cx="95" cy="83" r="5" fill="#1565c0"/>
+            <circle cx="63" cy="81" r="1.5" fill="white"/>
+            <circle cx="93" cy="81" r="1.5" fill="white"/>
+            <!-- Eyebrows -->
+            <path d="M57,73 Q65,69 73,73" stroke="#c8a060" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path d="M87,73 Q95,69 103,73" stroke="#c8a060" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <!-- Nose -->
+            <circle cx="80" cy="94" r="2.5" fill="rgba(200,120,80,0.4)"/>
+            <!-- Lips -->
+            <path id="lips" d="M68,104 Q74,110 80,108 Q86,110 92,104 Q86,114 80,112 Q74,114 68,104 Z" fill="#e91e63"/>
+            <!-- Cheeks -->
+            <circle cx="58" cy="98" r="8" fill="rgba(255,105,180,0.25)"/>
+            <circle cx="102" cy="98" r="8" fill="rgba(255,105,180,0.25)"/>
+            <!-- Hair front -->
+            <path id="hair-front" d="M38,70 Q40,30 80,28 Q120,30 122,70 Q110,50 80,48 Q50,50 38,70 Z" fill="#f9d56e"/>
+            <!-- Hair sides -->
+            <path id="hair-side-l" d="M38,70 Q30,100 35,130 Q42,90 48,75 Z" fill="#f9d56e"/>
+            <path id="hair-side-r" d="M122,70 Q130,100 125,130 Q118,90 112,75 Z" fill="#f9d56e"/>
+            <!-- Accessory layer -->
+            <g id="acc-layer"></g>
+            <!-- Outfit overlay (for patterns) -->
+            <g id="outfit-overlay" opacity="0.3"></g>
+          </svg>
+        </div>
+
+        <!-- Quick color for outfit -->
+        <div style="margin-top:10px;">
+          <div class="panel-title" style="margin-bottom:8px;">Kıyafet Rengi</div>
+          <div class="color-swatches" id="outfitColors">
+            <div class="swatch active" style="background:#e91e63" data-color="#e91e63,#f06292" onclick="setOutfitColor(this)"></div>
+            <div class="swatch" style="background:#9c27b0" data-color="#9c27b0,#ce93d8" onclick="setOutfitColor(this)"></div>
+            <div class="swatch" style="background:#2196f3" data-color="#2196f3,#90caf9" onclick="setOutfitColor(this)"></div>
+            <div class="swatch" style="background:#4caf50" data-color="#4caf50,#a5d6a7" onclick="setOutfitColor(this)"></div>
+            <div class="swatch" style="background:#ff9800" data-color="#ff9800,#ffcc80" onclick="setOutfitColor(this)"></div>
+            <div class="swatch" style="background:#ffffff" data-color="#ffffff,#f3e5f5" onclick="setOutfitColor(this)"></div>
+            <div class="swatch" style="background:#212121" data-color="#212121,#616161" onclick="setOutfitColor(this)"></div>
+            <div class="swatch" style="background:#ff5722" data-color="#ff5722,#ffab91" onclick="setOutfitColor(this)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center: Items -->
+      <div class="panel">
+        <div class="panel-title">Gardırop</div>
+        <div class="cat-tabs" id="catTabs"></div>
+        <div class="items-grid" id="itemsGrid"></div>
+        
+        <div style="margin-top:16px;">
+          <div class="panel-title">Seçili Kıyafetler</div>
+          <div id="selectedSlots">
+            <div class="accessory-slot"><span class="slot-label">👗 Kıyafet</span><span class="slot-val" id="slot-outfit">-</span></div>
+            <div class="accessory-slot"><span class="slot-label">👟 Ayakkabı</span><span class="slot-val" id="slot-shoes">-</span></div>
+            <div class="accessory-slot"><span class="slot-label">💍 Aksesuar</span><span class="slot-val" id="slot-accessory">-</span></div>
+            <div class="accessory-slot"><span class="slot-label">💇 Saç</span><span class="slot-val" id="slot-hair">-</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Stats -->
+      <div class="panel">
+        <div class="panel-title">Stil Skoru</div>
+        
+        <div class="stat-row">
+          <span class="stat-label">🌟 Toplam Puan</span>
+          <span class="stat-val" id="totalScore">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">🎨 Kombino</span>
+          <span class="stat-val" id="comboScore">0</span>
+        </div>
+
+        <div class="style-meters">
+          <div class="meter-row">
+            <div class="meter-label"><span>💎 Glamour</span><span id="m-glamour">0%</span></div>
+            <div class="meter-bar"><div class="meter-fill glamour" id="mf-glamour" style="width:0%"></div></div>
+          </div>
+          <div class="meter-row">
+            <div class="meter-label"><span>🦢 Zarafet</span><span id="m-elegance">0%</span></div>
+            <div class="meter-bar"><div class="meter-fill elegance" id="mf-elegance" style="width:0%"></div></div>
+          </div>
+          <div class="meter-row">
+            <div class="meter-label"><span>🔥 Trend</span><span id="m-trend">0%</span></div>
+            <div class="meter-bar"><div class="meter-fill trend" id="mf-trend" style="width:0%"></div></div>
+          </div>
+          <div class="meter-row">
+            <div class="meter-label"><span>⚡ Özgüven</span><span id="m-confidence">0%</span></div>
+            <div class="meter-bar"><div class="meter-fill confidence" id="mf-confidence" style="width:0%"></div></div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px;">
+          <div class="panel-title">Defile Teması</div>
+          <div id="themeButtons"></div>
+        </div>
+
+        <div class="progress-stars" id="progressStars">
+          <span class="prog-star" id="star1">⭐</span>
+          <span class="prog-star" id="star2">⭐</span>
+          <span class="prog-star" id="star3">⭐</span>
+          <span class="prog-star" id="star4">⭐</span>
+          <span class="prog-star" id="star5">⭐</span>
+        </div>
+
+        <button class="btn-primary" onclick="goToRunway()">💃 Defileye Git!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RUNWAY SCREEN -->
+  <div class="screen" id="screen-runway">
+    <div class="runway-stage">
+      <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:900;color:#c2185b;" id="runwayTitle">Defile Zamanı!</div>
+      <div style="font-size:14px;color:#ad1457;margin-top:4px;" id="runwaySubtitle">Pistte yürü, jüriyi etkile!</div>
+
+      <div class="runway-track" id="runwayTrack">
+        <div class="spotlight"></div>
+        <div class="runway-lights">
+          <div class="runway-line" style="left:20%;animation-delay:0s"></div>
+          <div class="runway-line" style="left:40%;animation-delay:0.5s"></div>
+          <div class="runway-line" style="left:60%;animation-delay:1s"></div>
+          <div class="runway-line" style="left:80%;animation-delay:1.5s"></div>
+        </div>
+        <div class="audience">
+          <span class="audience-member" style="animation-delay:0s">👏</span>
+          <span class="audience-member" style="animation-delay:0.3s">🙌</span>
+          <span class="audience-member" style="animation-delay:0.1s">👏</span>
+          <span class="audience-member" style="animation-delay:0.5s">🌟</span>
+          <span class="audience-member" style="animation-delay:0.2s">👏</span>
+          <span class="audience-member" style="animation-delay:0.4s">🙌</span>
+          <span class="audience-member" style="animation-delay:0.6s">👏</span>
+        </div>
+        <div class="runway-model" id="runwayModel">👸</div>
+        <!-- Red carpet -->
+        <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:80px;height:100%;background:linear-gradient(180deg,transparent,rgba(220,20,60,0.3));"></div>
+      </div>
+
+      <button class="btn-primary" id="walkBtn" onclick="startWalk()" style="max-width:300px;margin:0 auto;">
+        💃 Yürüyüşe Başla!
+      </button>
+
+      <div class="score-reveal" id="judgeScores" style="margin-top:20px;"></div>
+      <div id="runwayFeedback" style="font-size:15px;color:#880e4f;font-weight:700;margin-top:8px;"></div>
+    </div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div class="screen" id="screen-results">
+    <div class="leaderboard" id="leaderboard">
+      <div class="lb-title">🏆 Defile Şampiyonası Sonuçları</div>
+      <div id="lbEntries"></div>
+    </div>
+    <div style="text-align:center;margin-top:20px;">
+      <button class="btn-primary" style="max-width:300px;margin:0 auto;" onclick="newRound()">🔄 Yeni Barbie Ekle</button>
+      <button class="btn-primary" style="max-width:300px;margin:8px auto;background:linear-gradient(135deg,#9c27b0,#6a1b9a);" onclick="resetGame()">🌟 Oyunu Sıfırla</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ITEMS = {
+  kiyafet: [
+    {e:"👗",n:"Mini Elbise",g:25,el:15,t:30,c:20,shoe:["👠","👡"]},
+    {e:"👘",n:"Kimono",g:20,el:35,t:15,c:25,shoe:["🩴","👟"]},
+    {e:"🥻",n:"Sari",g:15,el:40,t:10,c:30,shoe:["👡","🩴"]},
+    {e:"🩱",n:"Bikinili Set",g:30,el:5,t:35,c:25,shoe:["🩴","👟"]},
+    {e:"👙",n:"Bikini",g:28,el:8,t:32,c:22,shoe:["🩴"]},
+    {e:"🧣",n:"Trençkot",g:22,el:38,t:20,c:30,shoe:["👢","👠"]},
+    {e:"🩴",n:"Yaz Elbisesi",g:18,el:20,t:28,c:35,shoe:["🩴","👡"]},
+    {e:"💃",n:"Balo Elbisesi",g:40,el:35,t:20,c:35,shoe:["👠","👡"]},
+    {e:"🥿",n:"Casual Set",g:10,el:12,t:38,c:40,shoe:["👟","🩴"]},
+    {e:"🎽",n:"Sportwear",g:8,el:5,t:45,c:42,shoe:["👟"]},
+  ],
+  ayakkabi: [
+    {e:"👠",n:"Stiletto",g:35,el:30,t:20,c:15,slot:"shoes"},
+    {e:"👡",n:"Sandalet",g:25,el:20,t:25,c:30,slot:"shoes"},
+    {e:"👢",n:"Bot",g:20,el:25,t:30,c:25,slot:"shoes"},
+    {e:"👟",n:"Sneaker",g:10,el:5,t:40,c:45,slot:"shoes"},
+    {e:"🥿",n:"Babet",g:15,el:30,t:20,c:35,slot:"shoes"},
+    {e:"🩴",n:"Terlik",g:12,el:8,t:35,c:45,slot:"shoes"},
+  ],
+  aksesuar: [
+    {e:"💍",n:"Yüzük",g:30,el:25,t:20,c:25,slot:"accessory"},
+    {e:"📿",n:"Kolye",g:28,el:30,t:18,c:24,slot:"accessory"},
+    {e:"👜",n:"El Çantası",g:35,el:28,t:22,c:15,slot:"accessory"},
+    {e:"🕶️",n:"Güneş Gözlüğü",g:25,el:15,t:40,c:20,slot:"accessory"},
+    {e:"🎩",n:"Şapka",g:20,el:35,t:25,c:20,slot:"accessory"},
+    {e:"💎",n:"Elmas Set",g:45,el:40,t:15,c:0,slot:"accessory"},
+    {e:"🌂",n:"Şemsiye",g:18,el:32,t:15,c:35,slot:"accessory"},
+    {e:"🧣",n:"Fular",g:22,el:28,t:20,c:30,slot:"accessory"},
+  ],
+  sac: [
+    {e:"👱",n:"Sarı Uzun",g:25,el:20,t:20,c:35,slot:"hair",hcolor:"#f9d56e"},
+    {e:"💇",n:"Kısa Bob",g:20,el:35,t:30,c:15,slot:"hair",hcolor:"#6d4c41"},
+    {e:"🧑‍🦱",n:"Dalgalı",g:22,el:25,t:28,c:25,slot:"hair",hcolor:"#c2185b"},
+    {e:"🧑‍🦰",n:"Kızıl",g:28,el:18,t:32,c:22,slot:"hair",hcolor:"#bf360c"},
+    {e:"🧑‍🦳",n:"Gümüş",g:35,el:40,t:15,c:10,slot:"hair",hcolor:"#bdbdbd"},
+    {e:"🧑‍🦲",n:"Topuz",g:30,el:38,t:20,c:12,slot:"hair",hcolor:"#4a148c"},
+  ]
+};
+
+const THEMES = [
+  {id:"glamour",n:"✨ Glamour",desc:"Işıltı ve lüks",bonus:{glamour:20}},
+  {id:"casual",n:"🌸 Casual Şık",desc:"Rahat & tarz",bonus:{trend:15,confidence:15}},
+  {id:"gece",n:"🌙 Gece Kraliçesi",desc:"Karanlık & gizemli",bonus:{glamour:15,elegance:15}},
+  {id:"sporty",n:"⚡ Sporty Chic",desc:"Dinamik & modern",bonus:{trend:20,confidence:10}},
+  {id:"vintage",n:"🌹 Vintage",desc:"Retro & zarif",bonus:{elegance:25}},
+];
+
+const JUDGES = [
+  {name:"👩‍💼 Victoria",style:"Glamour",comments:["Muhteşem!","Nefes kesici!","Harika!","Çarpıcı!","Mükemmel!"]},
+  {name:"🧑‍🎨 Alessandro",style:"Yaratıcılık",comments:["Efsane!","Orijinal!","Benzersiz!","Olağanüstü!","Bravo!"]},
+  {name:"👨‍💻 Kenji",style:"Trend",comments:["Süper trend!","Taze!","İnanılmaz!","Çok iyi!","Harika seçim!"]},
+];
+
+let state = {
+  selected: {kiyafet:null,ayakkabi:null,aksesuar:null,sac:null},
+  outfitColor: ["#e91e63","#f06292"],
+  theme: null,
+  scores: {glamour:0,elegance:0,trend:0,confidence:0},
+  leaderboard: [],
+  currentTab: "kiyafet"
+};
+
+function initStars() {
+  const c = document.getElementById("stars");
+  for(let i=0;i<40;i++){
+    const s = document.createElement("div");
+    s.className = "star";
+    s.style.left = Math.random()*100+"%";
+    s.style.top = Math.random()*100+"%";
+    s.style.animationDelay = Math.random()*3+"s";
+    s.style.animationDuration = (2+Math.random()*3)+"s";
+    s.style.width = s.style.height = (4+Math.random()*6)+"px";
+    c.appendChild(s);
+  }
+}
+
+function initThemes() {
+  const c = document.getElementById("themeButtons");
+  c.innerHTML = "";
+  THEMES.forEach(t => {
+    const b = document.createElement("div");
+    b.className = "theme-badge";
+    b.style.background = themeColor(t.id);
+    b.style.color = "white";
+    b.textContent = t.n;
+    b.onclick = () => selectTheme(t.id, b);
+    b.id = "theme-"+t.id;
+    c.appendChild(b);
+  });
+}
+
+function themeColor(id) {
+  const m = {glamour:"#e91e63",casual:"#4caf50",gece:"#3f51b5",sporty:"#ff5722",vintage:"#795548"};
+  return m[id]||"#9e9e9e";
+}
+
+function selectTheme(id, el) {
+  state.theme = id;
+  document.querySelectorAll(".theme-badge").forEach(b => b.classList.remove("selected-theme"));
+  el.classList.add("selected-theme");
+  updateScores();
+  showFlash("Tema: "+THEMES.find(t=>t.id===id).n+" 🎉");
+}
+
+function initCatTabs() {
+  const c = document.getElementById("catTabs");
+  const cats = ["kiyafet","ayakkabi","aksesuar","sac"];
+  const labels = {kiyafet:"👗 Kıyafet",ayakkabi:"👠 Ayakkabı",aksesuar:"💍 Aksesuar",sac:"💇 Saç"};
+  c.innerHTML = "";
+  cats.forEach(cat => {
+    const b = document.createElement("div");
+    b.className = "cat-tab"+(cat===state.currentTab?" active":"");
+    b.textContent = labels[cat];
+    b.onclick = () => { state.currentTab = cat; initCatTabs(); renderItems(); };
+    c.appendChild(b);
+  });
+}
+
+function renderItems() {
+  const g = document.getElementById("itemsGrid");
+  g.innerHTML = "";
+  const items = ITEMS[state.currentTab];
+  items.forEach((item,i) => {
+    const b = document.createElement("div");
+    b.className = "item-btn"+(state.selected[state.currentTab]===i?" selected":"");
+    b.innerHTML = `<span style="font-size:28px">${item.e}</span><span class="item-label">${item.n}</span>`;
+    b.onclick = () => selectItem(state.currentTab, i, b);
+    g.appendChild(b);
+  });
+}
+
+function selectItem(cat, idx, el) {
+  state.selected[cat] = idx;
+  document.querySelectorAll("#itemsGrid .item-btn").forEach(b => b.classList.remove("selected"));
+  el.classList.add("selected");
+  updateSlots();
+  updateScores();
+  updateBarbie();
+}
+
+function updateSlots() {
+  const cats = {kiyafet:"outfit",ayakkabi:"shoes",aksesuar:"accessory",sac:"hair"};
+  Object.entries(cats).forEach(([cat,slot]) => {
+    const idx = state.selected[cat];
+    const el = document.getElementById("slot-"+slot);
+    if(idx!==null && ITEMS[cat][idx]) {
+      el.textContent = ITEMS[cat][idx].e;
+    } else {
+      el.textContent = "-";
+    }
+  });
+}
+
+function updateScores() {
+  let g=0,el=0,t=0,c=0,total=0;
+  ["kiyafet","ayakkabi","aksesuar","sac"].forEach(cat => {
+    const idx = state.selected[cat];
+    if(idx!==null && ITEMS[cat][idx]) {
+      const item = ITEMS[cat][idx];
+      g += item.g||0; el += item.el||0; t += item.t||0; c += item.c||0;
+    }
+  });
+  // Theme bonus
+  if(state.theme) {
+    const theme = THEMES.find(th=>th.id===state.theme);
+    if(theme) {
+      g += theme.bonus.glamour||0;
+      el += theme.bonus.elegance||0;
+      t += theme.bonus.trend||0;
+      c += theme.bonus.confidence||0;
+    }
+  }
+  // Combo bonus
+  let combo = 0;
+  const selected = Object.values(state.selected).filter(v=>v!==null).length;
+  if(selected===4) combo = 30;
+  else if(selected===3) combo = 15;
+  else if(selected===2) combo = 5;
+
+  const cap = v => Math.min(100,v);
+  g=cap(g); el=cap(el); t=cap(t); c=cap(c);
+  total = Math.round((g+el+t+c)/4) + combo;
+
+  state.scores = {glamour:g,elegance:el,trend:t,confidence:c};
+
+  document.getElementById("totalScore").textContent = total;
+  document.getElementById("comboScore").textContent = "+"+combo;
+  ["glamour","elegance","trend","confidence"].forEach(k=>{
+    const v = state.scores[k];
+    document.getElementById("m-"+k).textContent = v+"%";
+    document.getElementById("mf-"+k).style.width = v+"%";
+  });
+
+  // Stars
+  const stars = Math.min(5, Math.floor(total/20));
+  for(let i=1;i<=5;i++){
+    const s = document.getElementById("star"+i);
+    if(i<=stars) s.classList.add("lit");
+    else s.classList.remove("lit");
+  }
+}
+
+function setOutfitColor(el) {
+  document.querySelectorAll(".swatch").forEach(s=>s.classList.remove("active"));
+  el.classList.add("active");
+  const colors = el.dataset.color.split(",");
+  state.outfitColor = colors;
+  updateBarbie();
+}
+
+function updateBarbie() {
+  const [c1,c2] = state.outfitColor;
+  document.getElementById("skirt").setAttribute("fill",c1);
+  document.getElementById("top").setAttribute("fill",c2);
+
+  // Shoes
+  const shoeIdx = state.selected.ayakkabi;
+  const shoeEmoji = shoeIdx!==null ? ITEMS.ayakkabi[shoeIdx].e : "👠";
+
+  // Hair
+  const hairIdx = state.selected.sac;
+  if(hairIdx!==null) {
+    const hc = ITEMS.sac[hairIdx].hcolor||"#f9d56e";
+    ["hair-back","hair-front","hair-side-l","hair-side-r"].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.setAttribute("fill",hc);
+    });
+  }
+
+  // Lip color matches outfit
+  document.getElementById("lips").setAttribute("fill",c1);
+
+  // Accessory layer
+  const accIdx = state.selected.aksesuar;
+  const accLayer = document.getElementById("acc-layer");
+  accLayer.innerHTML = "";
+  if(accIdx!==null) {
+    const acc = ITEMS.aksesuar[accIdx];
+    const text = document.createElementNS("http://www.w3.org/2000/svg","text");
+    text.setAttribute("x","80");
+    text.setAttribute("y","26");
+    text.setAttribute("text-anchor","middle");
+    text.setAttribute("font-size","22");
+    text.textContent = acc.e;
+    accLayer.appendChild(text);
+  }
+}
+
+function showFlash(msg) {
+  const el = document.getElementById("flashMsg");
+  el.textContent = msg;
+  el.classList.add("show");
+  setTimeout(()=>el.classList.remove("show"), 1800);
+}
+
+function goToRunway() {
+  const selected = Object.values(state.selected).filter(v=>v!==null).length;
+  if(selected < 2) { showFlash("En az 2 kıyafet seç! 👗"); return; }
+  if(!state.theme) { showFlash("Tema seç! 🎨"); return; }
+
+  document.getElementById("tab-runway").classList.remove("locked");
+  switchTab("runway");
+
+  const name = document.getElementById("barbieName").value || "Barbie";
+  const theme = THEMES.find(t=>t.id===state.theme);
+  document.getElementById("runwayTitle").textContent = name+"'nin Defilesi!";
+  document.getElementById("runwaySubtitle").textContent = "Tema: "+theme.n+" — "+theme.desc;
+
+  // Set model emoji
+  const kIdx = state.selected.kiyafet;
+  const kEmoji = kIdx!==null ? ITEMS.kiyafet[kIdx].e : "👗";
+  document.getElementById("runwayModel").textContent = kEmoji;
+  document.getElementById("judgeScores").innerHTML = "";
+  document.getElementById("runwayFeedback").textContent = "";
+  document.getElementById("walkBtn").style.display = "block";
+}
+
+function startWalk() {
+  document.getElementById("walkBtn").style.display = "none";
+  const model = document.getElementById("runwayModel");
+  model.classList.remove("walking");
+  void model.offsetWidth;
+  model.classList.add("walking");
+
+  // Reveal judge scores after walk
+  setTimeout(revealScores, 2000);
+}
+
+function revealScores() {
+  const sc = state.scores;
+  const total = Math.round((sc.glamour+sc.elegance+sc.trend+sc.confidence)/4);
+  const container = document.getElementById("judgeScores");
+  container.innerHTML = "";
+
+  const finalScores = [];
+  JUDGES.forEach((j,i) => {
+    const base = total + Math.floor(Math.random()*20)-10;
+    const score = Math.max(10, Math.min(100, base));
+    finalScores.push(score);
+
+    const el = document.createElement("div");
+    el.className = "judge-score";
+    el.innerHTML = `<div class="judge-name">${j.name}</div><div class="judge-val">${score}</div><div class="judge-comment">${j.comments[Math.floor(Math.random()*j.comments.length)]}</div>`;
+    container.appendChild(el);
+
+    setTimeout(()=>el.classList.add("show"), i*400);
+  });
+
+  const avgScore = Math.round(finalScores.reduce((a,b)=>a+b,0)/finalScores.length);
+
+  setTimeout(()=>{
+    const feedback = avgScore>=80?"🌟 EFSANEVİ! Pist senin!":avgScore>=60?"💃 Harika! Tüm gözler sende!":avgScore>=40?"👏 İyi iş! Devam et!":"💪 Pratik yap, bir sonraki daha iyi!";
+    document.getElementById("runwayFeedback").textContent = feedback;
+
+    if(avgScore>=70) launchConfetti();
+
+    // Save to leaderboard
+    const name = document.getElementById("barbieName").value || "Barbie";
+    const kIdx = state.selected.kiyafet;
+    const kEmoji = kIdx!==null ? ITEMS.kiyafet[kIdx].e : "👗";
+    state.leaderboard.push({
+      name,
+      emoji: kEmoji,
+      score: avgScore,
+      theme: state.theme ? THEMES.find(t=>t.id===state.theme).n : "-"
+    });
+    state.leaderboard.sort((a,b)=>b.score-a.score);
+
+    document.getElementById("tab-results").classList.remove("locked");
+    setTimeout(()=>{
+      document.getElementById("walkBtn").style.display = "block";
+      document.getElementById("walkBtn").textContent = "📊 Sonuçlara Bak";
+      document.getElementById("walkBtn").onclick = () => { switchTab("results"); renderLeaderboard(); };
+    }, 1200);
+  }, JUDGES.length*400+600);
+}
+
+function renderLeaderboard() {
+  const c = document.getElementById("lbEntries");
+  c.innerHTML = "";
+  const medals = ["🥇","🥈","🥉"];
+  const classes = ["gold","silver","bronze"];
+  state.leaderboard.slice(0,10).forEach((e,i) => {
+    const row = document.createElement("div");
+    row.className = "lb-row"+(i<3?" "+classes[i]:"");
+    row.style.animationDelay = (i*0.1)+"s";
+    row.innerHTML = `
+      <span class="lb-rank">${medals[i]||"✨"}</span>
+      <span class="lb-emoji">${e.emoji}</span>
+      <div class="lb-info">
+        <div class="lb-pname">${e.name}</div>
+        <div class="lb-theme">${e.theme}</div>
+      </div>
+      <span class="lb-score">${e.score}</span>
+    `;
+    c.appendChild(row);
+  });
+}
+
+function launchConfetti() {
+  const colors = ["#e91e63","#f48fb1","#f9d56e","#ce93d8","#81d4fa","#a5d6a7"];
+  for(let i=0;i<60;i++){
+    const p = document.createElement("div");
+    p.className = "confetti-piece";
+    p.style.left = Math.random()*100+"vw";
+    p.style.top = "0";
+    p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    p.style.transform = `rotate(${Math.random()*360}deg)`;
+    p.style.animationDelay = Math.random()*2+"s";
+    p.style.animationDuration = (2+Math.random()*2)+"s";
+    p.style.width = p.style.height = (6+Math.random()*10)+"px";
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(), 4000);
+  }
+}
+
+function switchTab(tab) {
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+  document.getElementById("screen-"+tab).classList.add("active");
+  const tabEl = document.getElementById("tab-"+tab) || document.querySelector(`.tab-btn[onclick="switchTab('${tab}')"]`);
+  if(tabEl) tabEl.classList.add("active");
+}
+
+function newRound() {
+  state.selected = {kiyafet:null,ayakkabi:null,aksesuar:null,sac:null};
+  state.theme = null;
+  state.outfitColor = ["#e91e63","#f06292"];
+  document.getElementById("tab-runway").classList.add("locked");
+  document.getElementById("tab-results").classList.add("locked");
+  document.getElementById("walkBtn").textContent = "💃 Yürüyüşe Başla!";
+  document.getElementById("walkBtn").onclick = startWalk;
+  document.getElementById("barbieName").value = "Barbie "+( state.leaderboard.length+1);
+  switchTab("dressup");
+  state.currentTab = "kiyafet";
+  initCatTabs();
+  renderItems();
+  updateScores();
+  updateSlots();
+  updateBarbie();
+  document.querySelectorAll(".theme-badge").forEach(b=>b.classList.remove("selected-theme"));
+  document.querySelectorAll(".swatch").forEach((s,i)=>{if(i===0)s.classList.add("active");else s.classList.remove("active");});
+}
+
+function resetGame() {
+  state.leaderboard = [];
+  newRound();
+}
+
+// Init
+initStars();
+initThemes();
+initCatTabs();
+renderItems();
+updateScores();
+updateBarbie();
+</script>
+</html>
