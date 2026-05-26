@@ -2,6 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Nunito:wght@400;600;700;800&display=swap');
 
@@ -33,9 +34,10 @@
 
   .container {
     position: relative; z-index: 1;
-    max-width: 960px;
+    max-width: 1040px;
     margin: 0 auto;
     padding: 20px 16px;
+    width: 100%;
   }
 
   .title-bar {
@@ -107,9 +109,22 @@
   /* ===== DRESS UP SCREEN ===== */
   .dressup-layout {
     display: grid;
-    grid-template-columns: 180px 1fr 220px;
+    grid-template-columns: 200px 1fr 240px;
+    grid-template-areas: "barbie wardrobe stats";
     gap: 16px;
     align-items: start;
+  }
+
+  .barbie-stage {
+    grid-area: barbie;
+  }
+
+  .wardrobe-panel {
+    grid-area: wardrobe;
+  }
+
+  .stats-panel {
+    grid-area: stats;
   }
 
   .panel {
@@ -158,8 +173,10 @@
 
   .barbie-figure {
     position: relative;
-    width: 160px;
-    height: 340px;
+    width: 100%;
+    max-width: 160px;
+    height: auto;
+    aspect-ratio: 160/340;
     margin: 0 auto;
   }
 
@@ -515,9 +532,238 @@
   .slot-label { font-size: 12px; color: #ad1457; font-weight: 700; flex: 1; }
   .slot-val { font-size: 20px; }
 
-  @media (max-width: 700px) {
-    .dressup-layout { grid-template-columns: 1fr; }
-    .game-title { font-size: 26px; }
+  /* RESPONSIVE DESIGN STYLES */
+  @media (max-width: 992px) {
+    .dressup-layout {
+      grid-template-columns: 200px 1fr;
+      grid-template-areas:
+        "barbie wardrobe"
+        "barbie stats";
+      gap: 16px;
+    }
+    .barbie-stage {
+      position: sticky;
+      top: 20px;
+      z-index: 10;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      padding: 16px 12px;
+    }
+    .game-title {
+      font-size: 30px;
+      text-shadow: 2px 2px 0 #f8bbd0, 4px 4px 0 rgba(194,24,91,0.15);
+    }
+    .game-subtitle {
+      font-size: 12px;
+      letter-spacing: 2px;
+    }
+    .dressup-layout {
+      grid-template-columns: 160px 1fr;
+      grid-template-areas:
+        "barbie wardrobe"
+        "stats stats";
+      gap: 12px;
+    }
+    .barbie-stage {
+      position: relative;
+      top: 0;
+    }
+    .panel {
+      padding: 12px;
+      border-radius: 18px;
+    }
+    .tab-btn {
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .container {
+      padding: 10px 8px;
+    }
+    .game-title {
+      font-size: 22px;
+      text-shadow: 1.5px 1.5px 0 #f8bbd0, 3px 3px 0 rgba(194,24,91,0.15);
+      letter-spacing: 1px;
+    }
+    .game-subtitle {
+      font-size: 10px;
+      letter-spacing: 1px;
+    }
+    .phase-tabs {
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .tab-btn {
+      padding: 8px 6px;
+      font-size: 11px;
+      flex: 1;
+      text-align: center;
+      white-space: nowrap;
+      border-width: 1.5px;
+    }
+    .dressup-layout {
+      grid-template-columns: 125px 1fr;
+      grid-template-areas:
+        "barbie wardrobe"
+        "stats stats";
+      gap: 8px;
+    }
+    .panel {
+      padding: 10px;
+      border-radius: 12px;
+    }
+    .panel-title {
+      font-size: 11px;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+    .barbie-name-input {
+      padding: 6px 8px;
+      font-size: 12px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+    }
+    .color-swatches {
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+    .swatch {
+      width: 20px;
+      height: 20px;
+      border-width: 2px;
+    }
+    .cat-tabs {
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+    .cat-tab {
+      padding: 4px 8px;
+      font-size: 10px;
+      border-radius: 12px;
+    }
+    .items-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+      max-height: 300px;
+    }
+    .item-btn {
+      border-radius: 10px;
+      border-width: 1.5px;
+    }
+    .item-btn span[style*="font-size"] {
+      font-size: 20px !important;
+    }
+    .item-btn .item-label {
+      font-size: 7px;
+    }
+    .accessory-slot {
+      padding: 6px 8px;
+      margin-bottom: 6px;
+      border-radius: 8px;
+    }
+    .slot-label {
+      font-size: 11px;
+    }
+    .slot-val {
+      font-size: 15px;
+    }
+    .stat-row {
+      padding: 6px 0;
+    }
+    .stat-label {
+      font-size: 11px;
+    }
+    .stat-val {
+      font-size: 14px;
+    }
+    .meter-row {
+      margin-bottom: 8px;
+    }
+    .meter-label {
+      font-size: 10px;
+    }
+    .meter-bar {
+      height: 6px;
+    }
+    .theme-badge {
+      padding: 4px 10px;
+      font-size: 11px;
+      margin: 2px;
+    }
+    .btn-primary {
+      padding: 10px;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+    .runway-stage {
+      padding: 16px;
+      border-radius: 18px;
+    }
+    #runwayTitle {
+      font-size: 20px !important;
+    }
+    #runwaySubtitle {
+      font-size: 11px !important;
+    }
+    .runway-track {
+      height: 220px;
+      margin: 12px 0;
+      border-radius: 14px;
+    }
+    .runway-model {
+      font-size: 60px;
+    }
+    .audience {
+      font-size: 18px;
+    }
+    .judge-score {
+      padding: 8px 12px;
+      min-width: 80px;
+      border-radius: 12px;
+    }
+    .judge-name {
+      font-size: 10px;
+    }
+    .judge-val {
+      font-size: 24px;
+    }
+    .judge-comment {
+      font-size: 8px;
+    }
+    .leaderboard {
+      padding: 12px;
+      border-radius: 16px;
+    }
+    .lb-title {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+    .lb-row {
+      padding: 8px 10px;
+      border-radius: 10px;
+      gap: 8px;
+    }
+    .lb-rank {
+      font-size: 16px;
+      min-width: 24px;
+    }
+    .lb-emoji {
+      font-size: 24px;
+    }
+    .lb-pname {
+      font-size: 12px;
+    }
+    .lb-theme {
+      font-size: 9px;
+    }
+    .lb-score {
+      font-size: 18px;
+    }
   }
 </style>
 
@@ -619,7 +865,7 @@
       </div>
 
       <!-- Center: Items -->
-      <div class="panel">
+      <div class="panel wardrobe-panel">
         <div class="panel-title">Gardırop</div>
         <div class="cat-tabs" id="catTabs"></div>
         <div class="items-grid" id="itemsGrid"></div>
@@ -636,7 +882,7 @@
       </div>
 
       <!-- Right: Stats -->
-      <div class="panel">
+      <div class="panel stats-panel">
         <div class="panel-title">Stil Skoru</div>
         
         <div class="stat-row">
